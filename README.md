@@ -14,15 +14,23 @@ yarn add @ibnlanre/signals
 
 ## Usage
 
-It is advisable to create a signal using the `signal` function, outside of a React component to avoid re-creating the signal on every render. The signal object can then be used within a React component using the `use` method. The `signal` function takes an initial value and returns a signal object, while the `use` method returns the current value and a setter function.
+To create a signal, import the `signal` function from the package, and call it with a value. Whatever value is passed to the `signal` function will be the initial value of the signal. An initial value is necessary to help the signal pre-empt the type of value it will be dealing with. The type of the initial value becomes the type of the signal.
 
 ### Within a React component
 
-```jsx
+It is advisable to create a signal using the `signal` function, outside of a React component to avoid re-creating the signal on every render. The `signal` function takes an initial value and returns a signal object. The signal object contains methods for subscribing to changes, and updating the value.
+
+```typescript
 import { signal } from '@ibnlanre/signals';
 
 const count = signal(0);
+```
 
+#### Using the hooks pattern
+
+Signals created should be used within a React component using the `use` method. The `use` method returns the current value and a setter function. The setter function can be called with a new value, or a function that takes the previous value and returns a new value.
+
+```jsx
 function Counter() {
   const [countValue, setCount] = count.use();
 
@@ -39,6 +47,22 @@ function Counter() {
 }
 ```
 
+#### Using the reactivity pattern
+
+Because calling the `use` hook implements the useState hook, the reactivity pattern can be used to update the signal value directly. This is useful when the setter function is not needed. It works by calling the `use` hook in the component body, without destructuring the return value. Accessing the value of the signal can be achieved by calling the `value` property of the signal object.
+
+```jsx
+function Counter() {
+  count.use();
+
+  return (
+    <button onClick={() => count.value++}>
+      {count.value}
+    </button>
+  );
+}
+```
+
 ### Outside a React component
 
 Outside a React component, you can use the signal object directly. It could also be used within, but accessing the `.value` property directly is not recommended, as the value will not be updated when the signal changes, without a re-render. The issue of the value not updating does not exist outside a React component.
@@ -50,6 +74,25 @@ const increment = () => count.value++;
 const decrement = () => { 
   count.value = count.value - 1 
 };
+```
+
+### Asynchronous Values
+
+Signals can also be used to store awaited values. The `signal` function can be called with an awaited promise, and the signal will be updated with the resolved value of the promise. This is useful when fetching data from an API. This method does not require a function as the initial value, and the value will be inferred from the resolved value of the promise, if it is typed.
+
+```typescript
+type Octocat = {
+  login: string;
+  id: number;
+  node_id: string;
+  avatar_url: string;
+  gravatar_id: string;
+  followers: number
+  url: string
+};
+
+const url = "https://api.github.com/users/octocat";
+const octocat = signal(await fetch(url).then<Octocat>((res) => res.json()));
 ```
 
 ### Computed signals
