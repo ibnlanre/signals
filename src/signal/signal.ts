@@ -3,6 +3,12 @@ import { useEffect, useState } from "react";
 
 import { Sample } from "../sample";
 
+export function isSetStateFunction<State>(
+  value: SetStateAction<State>
+): value is (prevState: State) => State {
+  return typeof value === "function";
+}
+
 /**
  * A signal that emits a value and notifies subscribers.
  */
@@ -45,9 +51,9 @@ export class Signal<Value> extends Sample<Value> {
     useEffect(this.subscribe(setState), []);
 
     const setter: Dispatch<SetStateAction<Value>> = (value) => {
-      if (typeof value === "function") {
-        this.value = (value as (value: Value) => Value)(this.state);
-      } else this.value = value as Value;
+      if (isSetStateFunction(value)) {
+        setState((this.value = value(this.state)));
+      } else setState((this.value = value));
     };
 
     const selected = selector(state);
