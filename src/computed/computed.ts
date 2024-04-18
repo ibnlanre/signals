@@ -59,8 +59,8 @@ export class Computed<
 /**
  * Creates a new signal with an optional initial value.
  *
- * @param dependencyList The list of signals that this signal depends on.
  * @param initialValue The initial value of the signal.
+ * @param dependencyList The list of signals that this signal depends on.
  *
  * @returns The new signal.
  */

@@ -14,7 +14,7 @@ yarn add @ibnlanre/signals
 
 ## Usage
 
-Within a React component, it is advisable to create a signal using the `signal` function. The `signal` function takes an initial value and returns a signal object. The signal object has a `use` method that returns the current value and a setter function.
+It is advisable to create a signal using the `signal` function, outside of a React component to avoid re-creating the signal on every render. The signal object can then be used within a React component using the `use` method. The `signal` function takes an initial value and returns a signal object, while the `use` method returns the current value and a setter function.
 
 ### Within a React component
 
@@ -29,7 +29,9 @@ function Counter() {
   return (
     <div>
       <p>{countValue}</p>
-      <button onClick={() => { setCount(c => ++c) }}>
+      <button onClick={() => { 
+        setCount(prevCount => prevCount + 1) 
+      }}>
         Increment
       </button>
     </div>
@@ -39,12 +41,15 @@ function Counter() {
 
 ### Outside a React component
 
-Outside a React component, you can use the signal object directly. It could also be used within, but accessing the `.value` property directly is not recommended, as the value will not be updated when the signal changes, without a re-render.
+Outside a React component, you can use the signal object directly. It could also be used within, but accessing the `.value` property directly is not recommended, as the value will not be updated when the signal changes, without a re-render. The issue of the value not updating does not exist outside a React component.
 
 ```typescript
 const count = signal(0);
 
-const changeCount = () => count.value++;
+const increment = () => count.value++;
+const decrement = () => { 
+  count.value = count.value - 1 
+};
 ```
 
 ### Computed signals
@@ -55,7 +60,28 @@ It is also possible to create a `computed` signal, which depends on other signal
 import { computed } from '@ibnlanre/signals';
 
 const count = signal(0);
-const doubleCount = computed([c], () => c.value * 2);
+const doubleCount = computed(() => c.value * 2, [c]);
+```
+
+A computed signal can be used in the same way as a regular signal. It can be used within a React component using the `use` method, or outside a React component using the `value` property. But it cannot be updated directly. Rather its value is derived from the signals it depends on.
+
+```jsx
+function DoubleCounter() {
+  const [doubleCountValue, setDoubleCountValue] = doubleCount.use();
+
+  useEffect(() => {
+    console.log('doubleCount changed:', doubleCountValue);
+  }, [doubleCountValue]);
+
+  return (
+    <div>
+      <p>{doubleCountValue}</p>
+      <button onClick={() => count.value--}>
+        Decrement
+      </button>
+    </div>
+  );
+}
 ```
 
 ## API
@@ -92,21 +118,25 @@ The `computed` function creates a computed signal. It takes a function that retu
 const doubleCount = computed([count], () => count.value * 2);
 ```
 
-### `effect`
+### `subscribe`
 
-The `effect` method of the signal object is used to run a function whenever the signal changes. It takes a function and an optional `immediate` parameter, which is `true` by default.
+The `subscribe` method of the signal object is used to run a function whenever the signal changes. It takes a function and an optional `immediate` argument, which is `true` by default.
 
 ```typescript
-count.effect((value) => {
+count.subscribe((value) => {
   console.log('count changed:', value);
 }, false);
 ```
 
-### `watch`
+### `effect`
 
-The `watch` method of the signal object is used to run a function whenever the signal changes. It takes a function and an optional `immediate` parameter, which is `true` by default.
+The `effect` method of the signal object performs the same function as the `subscribe` method, but it should be used within a React component, as it is implemented using the `useEffect` hook. It takes a function and an optional `immediate` argument, which is `true` by default. While the `subscribe` method could be used within a React component, the `effect` method is recommended, as it is automatically cleaned up when the component is unmounted.
 
 ```typescript
+count.effect((value) => {
+  console.log('count value:', value);
+});
+```
 
 ## License
 
