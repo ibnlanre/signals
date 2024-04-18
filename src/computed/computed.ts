@@ -26,14 +26,18 @@ export class Computed<
    * @param {Value} [initialValue] The initial value of the signal.
    * @returns {Signal<Value>} The new signal.
    */
-  constructor(
-    dependencyList: DependencyList,
-    initialValue: (...args: NoInfer<DependencyList>) => Value
-  ) {
-    super(initialValue(...dependencyList));
+  constructor(initialValue: () => Value, dependencyList: DependencyList) {
+    /**
+     * Pass the current value of the signal to the parent class.
+     */
+    super(initialValue());
+
+    /**
+     * Subscribe to changes in the dependency signals.
+     */
     dependencyList.forEach((dependency) => {
       dependency.subscribe(() => {
-        this.state = initialValue(...dependencyList);
+        this.state = initialValue();
         this.subscribers.forEach((subscriber) => subscriber(this.state));
       });
     });
@@ -61,8 +65,8 @@ export class Computed<
  * @returns The new signal.
  */
 export function computed<Value, const DependencyList extends CompositeArray>(
-  dependencyList: DependencyList,
-  initialValue: (...args: DependencyList) => Value
+  initialValue: () => Value,
+  dependencyList: DependencyList
 ): Computed<Value, DependencyList> {
-  return new Computed(dependencyList, initialValue);
+  return new Computed(initialValue, dependencyList);
 }
