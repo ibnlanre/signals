@@ -38,9 +38,9 @@ export class Signal<Value> extends Sample<Value> {
    * Retrieves the current value of the signal and a setter function to update the value.
    * @returns {[Value, Dispatch<SetStateAction<Value>>]} The current value and a setter function.
    */
-  use = <Select>(
+  use = <Select = Value>(
     selector: (state: Value) => Select = (state) => state as unknown as Select
-  ) => {
+  ): [Select, Dispatch<SetStateAction<Value>>] => {
     const [state, setState] = useState(this.state);
     useEffect(this.subscribe(setState), []);
 
@@ -50,8 +50,8 @@ export class Signal<Value> extends Sample<Value> {
       } else this.value = value as Value;
     };
 
-    const selectedState = selector(state);
-    return [selectedState, setter] as [Select, Dispatch<SetStateAction<Value>>];
+    const selected = selector(state);
+    return [selected, setter];
   };
 }
 
