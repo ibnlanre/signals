@@ -61,6 +61,8 @@ export class Sample<Value> {
    * @returns {void}
    */
   effect = (callback: (value: Value) => void, immediate = true) => {
-    useEffect(this.subscribe(callback, immediate), []);
+    useEffect(() => {
+      return this.subscribe(callback, immediate);
+    }, []);
   };
 }

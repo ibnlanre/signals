@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Sample } from "../sample";
 
@@ -28,7 +28,9 @@ export class Signal<Value> extends Sample<Value> {
    */
   set value(newValue: Value) {
     this.state = newValue;
-    this.subscribers.forEach((fn) => fn(this.state));
+    this.subscribers.forEach((callback) => {
+      callback(newValue);
+    });
   }
 
   /**
@@ -48,12 +50,12 @@ export class Signal<Value> extends Sample<Value> {
     selector: (state: Value) => Select = (state) => state as unknown as Select
   ): [Select, Dispatch<SetStateAction<Value>>] => {
     const [state, setState] = useState(this.state);
-    useEffect(this.subscribe(setState), []);
+    this.effect(setState);
 
     const setter: Dispatch<SetStateAction<Value>> = (value) => {
       if (isSetStateFunction(value)) {
-        setState((this.value = value(this.state)));
-      } else setState((this.value = value));
+        this.value = value(this.state);
+      } else this.value = value;
     };
 
     const selected = selector(state);
@@ -65,8 +67,8 @@ export class Signal<Value> extends Sample<Value> {
  * Creates a new signal with an optional initial value.
  * @template Value The type of the initial value.
  *
- * @param {Value | () => Value} [initialValue] The initial value of the signal or a function to generate the initial value.
- * @returns {Signal<Value> | Computed<Value>} The new signal.
+ * @param {Value} [initialValue] The initial value of the signal.
+ * @returns {Signal<Value>} The new signal.
  */
 export function signal<Value>(initialValue: Value): Signal<Value> {
   return new Signal(initialValue);
