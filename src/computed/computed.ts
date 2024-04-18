@@ -47,12 +47,12 @@ export class Computed<
    * Retrieves the current value of the signal
    * @returns {Value} The current value.
    */
-  use = <Select>(
+  use = <Select = Value>(
     selector: (state: Value) => Select = (state) => state as unknown as Select
   ) => {
     const [state, setState] = useState(this.state);
     useEffect(this.subscribe(setState), []);
-    return selector(state);
+    return [selector(state)];
   };
 }
 
