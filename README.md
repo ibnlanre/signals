@@ -23,7 +23,7 @@ It is advisable to create a signal using the `signal` function, outside of a Rea
 ```typescript
 import { signal } from '@ibnlanre/signals';
 
-const count = signal(0);
+const countSignal = signal(0);
 ```
 
 #### Using the hooks pattern
@@ -32,11 +32,11 @@ Signals created should be used within a React component using the `use` method. 
 
 ```jsx
 function Counter() {
-  const [countValue, setCount] = count.use();
+  const [count, setCount] = countSignal.use();
 
   return (
     <div>
-      <p>{countValue}</p>
+      <p>{count}</p>
       <button onClick={() => { 
         setCount(prevCount => prevCount + 1) 
       }}>
@@ -102,24 +102,26 @@ It is also possible to create a `computed` signal, which depends on other signal
 ```typescript
 import { computed } from '@ibnlanre/signals';
 
-const count = signal(0);
-const doubleCount = computed(() => c.value * 2, [c]);
+const countSignal = signal(1);
+const doubleCountSignal = computed(() => {
+  return countSignal.value * 2
+}, [countSignal]);
 ```
 
 A computed signal can be used in the same way as a regular signal. It can be used within a React component using the `use` method, or outside a React component using the `value` property. But it cannot be updated directly. Rather its value is derived from the signals it depends on.
 
 ```jsx
 function DoubleCounter() {
-  const [doubleCountValue, setDoubleCountValue] = doubleCount.use();
+  const [doubleCount] = doubleCountSignal.use();
 
   useEffect(() => {
-    console.log('doubleCount changed:', doubleCountValue);
-  }, [doubleCountValue]);
+    console.log('doubleCount changed:', doubleCount);
+  }, [doubleCount]);
 
   return (
     <div>
-      <p>{doubleCountValue}</p>
-      <button onClick={() => count.value--}>
+      <p>{doubleCount}</p>
+      <button onClick={() => countSignal.value--}>
         Decrement
       </button>
     </div>
@@ -134,7 +136,7 @@ function DoubleCounter() {
 The `signal` function creates a signal object. It takes an initial value and returns a signal object.
 
 ```typescript
-const count = signal(0);
+const countSignal = signal(0);
 ```
 
 ### `use`
@@ -142,7 +144,7 @@ const count = signal(0);
 The `use` method of the signal object returns the current value and a setter function. It is used within a React component.
 
 ```typescript
-const [countValue, setCount] = count.use();
+const [count, setCount] = countSignal.use();
 ```
 
 ### `value`
@@ -150,7 +152,7 @@ const [countValue, setCount] = count.use();
 The `value` property of the signal object returns the current value. It is used outside a React component.
 
 ```typescript
-const countValue = count.value;
+const count = countSignal.value;
 ```
 
 ### `computed`
@@ -158,7 +160,7 @@ const countValue = count.value;
 The `computed` function creates a computed signal. It takes a function that returns a value, and an array of signals that the function depends on.
 
 ```typescript
-const doubleCount = computed([count], () => count.value * 2);
+const doubleSignal = computed(() => countSignal.value * 2, [countSignal]);
 ```
 
 ### `subscribe`
@@ -166,7 +168,7 @@ const doubleCount = computed([count], () => count.value * 2);
 The `subscribe` method of the signal object is used to run a function whenever the signal changes. It takes a function and an optional `immediate` argument, which is `true` by default.
 
 ```typescript
-count.subscribe((value) => {
+countSignal.subscribe((value) => {
   console.log('count changed:', value);
 }, false);
 ```
@@ -176,7 +178,7 @@ count.subscribe((value) => {
 The `effect` method of the signal object performs the same function as the `subscribe` method, but it should be used within a React component, as it is implemented using the `useEffect` hook. It takes a function and an optional `immediate` argument, which is `true` by default. While the `subscribe` method could be used within a React component, the `effect` method is recommended, as it is automatically cleaned up when the component is unmounted.
 
 ```typescript
-count.effect((value) => {
+countSignal.effect((value) => {
   console.log('count value:', value);
 });
 ```

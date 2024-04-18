@@ -1,6 +1,6 @@
 {
   "name": "@ibnlanre/signals",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A simple reactive state management library for React, built with hooks",
   "homepage": "https://github.com/ibnlanre/signals#readme",
   "type": "module",
