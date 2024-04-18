@@ -1,0 +1,66 @@
+{
+  "name": "@ibnlanre/signals",
+  "version": "0.0.1",
+  "description": "A simple reactive state management library built with signals",
+  "homepage": "https://github.com/ibnlanre/signals#readme",
+  "type": "module",
+  "scripts": {
+    "bundle": "tsup",
+    "lint": "eslint --fix --ext .ts,.tsx .",
+    "test": "vitest -- --typecheck",
+    "package": "npm publish --access public",
+    "dry-run": "npm pack --dry-run"
+  },
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "peerDependencies": {
+    "react": ">16.7.0",
+    "react-dom": ">16.7.0"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "author": "Ridwan Olanrewaju <olaitanlanre28@gmail.com>",
+  "repository": {
+    "url": "git+https://github.com/ibnlanre/signals.git",
+    "type": "git",
+    "publishConfig": {
+      "access": "public"
+    }
+  },
+  "bugs": {
+    "url": "https://github.com/ibnlanre/signals/issues"
+  },
+  "license": "MIT",
+  "keywords": [
+    "signal",
+    "solid-js",
+    "solid",
+    "reactive",
+    "reactivity",
+    "react",
+    "angular",
+    "svelte",
+    "vue",
+    "state"
+  ],
+  "devDependencies": {
+    "@testing-library/react": "^15.0.2",
+    "@vitejs/plugin-react": "^4.2.1",
+    "jsdom": "^24.0.0",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.5",
+    "vitest": "^1.5.0"
+  }
+}
