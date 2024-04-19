@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Sample } from "../sample";
 import { Signal } from "../signal";
@@ -51,7 +51,7 @@ export class Computed<
     selector: (state: Value) => Select = (state) => state as unknown as Select
   ) => {
     const [state, setState] = useState(this.state);
-    useEffect(this.subscribe(setState), []);
+    this.effect(setState);
     return [selector(state)];
   };
 }

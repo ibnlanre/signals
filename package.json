@@ -1,12 +1,12 @@
 {
   "name": "@ibnlanre/signals",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "A simple reactive state management library for React, built with hooks",
   "homepage": "https://github.com/ibnlanre/signals#readme",
   "type": "module",
   "scripts": {
     "bundle": "tsup",
-    "lint": "eslint --fix --ext .ts,.tsx .",
+    "lint": "eslint --ext .ts .",
     "test": "vitest -- --typecheck",
     "package": "npm publish --access public",
     "dry-run": "npm pack --dry-run"
