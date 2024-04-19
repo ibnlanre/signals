@@ -28,9 +28,9 @@ The `signal` function takes an initial value and returns a signal object. The si
 const countSignal = signal(0);
 ```
 
-#### Using the hooks pattern
+#### Using the `use` method
 
-Signals created should be used within a React component using the `use` method. The `use` method returns the current value and a setter function. The setter function can be called with a new value, or a function that takes the previous value and returns a new value.
+Signals created should be used within a React component using the `use` method. The `use` method returns the current value and a setter function. The setter function can be called with a new value, or a function that takes the previous value and returns a new value. The setter function updates the value of the signal, and the component re-renders. Multiple components can use the same signal, and they will all re-render when the signal changes.
 
 ```jsx
 function Counter() {
@@ -49,9 +49,25 @@ function Counter() {
 }
 ```
 
-#### Using the reactivity pattern
+#### Working with selectors
 
-A re-render on signal change can be achieved by calling the `use` method within a React component. This is useful when the setter function is not needed. It works by calling the `use` hook in the component body, without destructuring the return value. Accessing the value of the signal can then be achieved by calling the `value` property of the signal object. The value of the signal can also be updated directly, and the component will re-render.
+The `use` method can take an optional argument, which is a callback function. It acts as a `selector`, and is useful for extracting a part of the signal value or modifying it before it is used in the component. The `selector` function is called with the current value of the signal, and the return value is used as the value of the signal in the component. Updating the signal value with the setter function would still require the entire signal value.
+
+```jsx
+function Counter() {
+  const [count, setCount] = countSignal.use((value) => value / 2);
+ 
+  useEffect(() => {
+    console.log('count:', count);
+  }, [count]);
+
+  ...
+}
+```
+
+#### Directly accessing the value
+
+A re-render on signal change can be achieved by calling the `use` method within a React component. This is useful when the setter function is not needed. It works by calling the `use` hook in the component body, without destructuring the return value. Accessing the value of the signal can then be achieved by calling the `value` property of the signal object. The value of the signal can also be updated directly, and the component will re-render. Multiple `use` calls from different signals can be used in a single component, and the component will re-render when any of the signals change.
 
 ```jsx
 function Counter() {
@@ -105,6 +121,8 @@ A value of a signal can be derived from other signals. When a signal depends on 
 import { computed } from '@ibnlanre/signals';
 ```
 
+#### Creating a computed signal
+
 The `computed` function takes a callback that returns a value, and an array of signals that the callback depends on. Whenever the signals it depends on change, the callback is called, and the value of the computed signal is updated. A computed signal can also be dependent on another computed signal. The dependency tree is automatically managed by the library.
 
 ```typescript
@@ -115,15 +133,17 @@ const doubleCountSignal = computed(() => {
 }, [countSignal]);
 ```
 
+#### Using a computed signal
+
 A computed signal can be used in the same way as a regular signal. It can be used within a React component using the `use` method, or outside a React component using the `value` property. The value of a computed signal is read-only, and cannot be updated directly. Rather its value is derived from the signals it depends on.
 
 ```jsx
 function DoubleCounter() {
   const [doubleCount] = doubleCountSignal.use();
 
-  useEffect(() => {
-    console.log('doubleCount changed:', doubleCount);
-  }, [doubleCount]);
+  doubleCountSignal.effect((value) => {
+    console.log('doubleCount changed:', value);
+  });
 
   return (
     <div>
@@ -172,7 +192,7 @@ const doubleSignal = computed(() => countSignal.value * 2, [countSignal]);
 
 ### `subscribe`
 
-The `subscribe` method of the signal object is used to run a function whenever the signal changes. It takes a function and an optional `immediate` argument, which is `true` by default.
+The `subscribe` method of the signal object is used to run a function whenever the signal changes. It takes a function and an optional `immediate` argument, which is `true` by default. It is intended to be used outside a React component. The `immediate` argument determines whether the function should be run immediately when it is subscribed to.
 
 ```typescript
 countSignal.subscribe((value) => {
