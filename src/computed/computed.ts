@@ -14,14 +14,6 @@ export class Computed<
   const DependencyList extends CompositeArray
 > extends Sample<Value> {
   /**
-   * Returns the current value of the signal.
-   * @returns {Value} The current value.
-   */
-  get value() {
-    return this.state;
-  }
-
-  /**
    * Creates a new signal with an optional initial value.
    * @param {Value} [initialValue] The initial value of the signal.
    * @returns {Signal<Value>} The new signal.
@@ -30,17 +22,32 @@ export class Computed<
     /**
      * Pass the current value of the signal to the parent class.
      */
-    super(initialValue());
+    super(
+      (() => {
+        const eventTarget = new EventTarget();
+        eventTarget.addEventListener("s!gN@l_3v3nT", (event) => {
+          event.stopPropagation();
 
-    /**
-     * Subscribe to changes in the dependency signals.
-     */
-    dependencyList.forEach((dependency) => {
-      dependency.subscribe(() => {
-        this.state = initialValue();
-        this.subscribers.forEach((subscriber) => subscriber(this.state));
-      });
-    });
+          const signal = (<CustomEvent>event).detail as Composite;
+          signal.subscribe(() => {
+            this.state = initialValue();
+            this.subscribers.forEach((subscriber) => subscriber(this.state));
+          });
+        });
+
+        return initialValue();
+      })()
+    );
+
+    // /**
+    //  * Subscribe to changes in the dependency signals.
+    //  */
+    // dependencyList.forEach((dependency) => {
+    //   dependency.subscribe(() => {
+    //     this.state = initialValue();
+    //     this.subscribers.forEach((subscriber) => subscriber(this.state));
+    //   });
+    // });
   }
 
   /**
@@ -70,3 +77,15 @@ export function computed<Value, const DependencyList extends CompositeArray>(
 ): Computed<Value, DependencyList> {
   return new Computed(initialValue, dependencyList);
 }
+
+const eventTarget = new EventTarget();
+eventTarget.addEventListener("s!gN@l_3v3nT", (event) => {
+  event.stopPropagation();
+});
+
+// Dispatch the "s!gN@l_3v3nT" event
+const event = new CustomEvent("s!gN@l_3v3nT", {
+  bubbles: true,
+  cancelable: true,
+});
+eventTarget.dispatchEvent(event);

@@ -20,6 +20,22 @@ export class Sample<Value> {
   protected subscribers: Set<(data: Value) => void> = new Set();
 
   /**
+   * Returns the current value of the signal.
+   * @returns {Value} The current value.
+   */
+  get value() {
+    const eventTarget = new EventTarget();
+    const event = new CustomEvent("s!gN@l_3v3nT", {
+      bubbles: true,
+      cancelable: true,
+      detail: this,
+    });
+    eventTarget.dispatchEvent(event);
+
+    return this.state;
+  }
+
+  /**
    * Creates a new signal with an optional initial value.
    * @param {Value} [initialValue=undefined] The initial value of the signal.
    * @returns {Signal<Value>} The new signal.

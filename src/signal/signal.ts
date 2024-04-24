@@ -14,14 +14,6 @@ export function isSetStateFunction<State>(
  */
 export class Signal<Value> extends Sample<Value> {
   /**
-   * Returns the current value of the signal.
-   * @returns {Value} The current value.
-   */
-  get value() {
-    return this.state;
-  }
-
-  /**
    * Emits a new value to the signal and notifies subscribers.
    * @param {Value} newValue The new value to emit.
    * @returns {void}
